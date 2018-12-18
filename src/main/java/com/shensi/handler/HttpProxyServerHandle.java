@@ -78,7 +78,6 @@ public class HttpProxyServerHandle extends ChannelInboundHandlerAdapter {
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
             HttpRequest request = (HttpRequest) msg;
-            //第一次建立连接取host和端口号和处理代理握手
             if (status == 0) {
                 ProtoUtil.RequestProto requestProto = ProtoUtil.getRequestProto(request);
                 if (requestProto == null) { //bad request
@@ -112,7 +111,7 @@ public class HttpProxyServerHandle extends ChannelInboundHandlerAdapter {
                 ReferenceCountUtil.release(msg);
                 status = 1;
             }
-        } else { //ssl和websocket的握手处理
+        } else {
             if (serverConfig.isHandleSsl()) {
                 ByteBuf byteBuf = (ByteBuf) msg;
                 if (byteBuf.getByte(0) == 22) {//ssl握手
@@ -156,11 +155,6 @@ public class HttpProxyServerHandle extends ChannelInboundHandlerAdapter {
                 return;
             }
             ProxyHandler proxyHandler = ProxyHandleFactory.build(proxyConfig);
-      /*
-        添加SSL client hello的Server Name Indication extension(SNI扩展)
-        有些服务器对于client hello不带SNI扩展时会直接返回Received fatal alert: handshake_failure(握手错误)
-        例如：https://cdn.mdn.mozilla.net/static/img/favicon32.7f3da72dcea1.png
-       */
             ProtoUtil.RequestProto requestProto = new ProtoUtil.RequestProto(host, port, isSsl);
             ChannelInitializer channelInitializer =
                     isHttp ? new HttpProxyInitializer(channel, requestProto, proxyHandler)
@@ -222,7 +216,6 @@ public class HttpProxyServerHandle extends ChannelInboundHandlerAdapter {
                         clientChannel.writeAndFlush(httpResponse);
                         if (HttpHeaderValues.WEBSOCKET.toString()
                                 .equals(httpResponse.headers().get(HttpHeaderNames.UPGRADE))) {
-                            //websocket转发原始报文
                             proxyChannel.pipeline().remove("httpCodec");
                             clientChannel.pipeline().remove("httpCodec");
                         }

@@ -47,7 +47,6 @@ public class CertUtil {
     private static KeyFactory keyFactory = null;
 
     static {
-        //注册BouncyCastleProvider加密库
         Security.addProvider(new BouncyCastleProvider());
     }
 
@@ -68,8 +67,7 @@ public class CertUtil {
     }
 
     /**
-     * 从文件加载RSA私钥 openssl pkcs8 -topk8 -nocrypt -inform PEM -outform DER -in ca.key -out
-     * ca_private.der
+     * 从文件加载RSA私钥
      */
     public static PrivateKey loadPriKey(byte[] bts)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -78,24 +76,21 @@ public class CertUtil {
     }
 
     /**
-     * 从文件加载RSA私钥 openssl pkcs8 -topk8 -nocrypt -inform PEM -outform DER -in ca.key -out
-     * ca_private.der
+     * 从文件加载RSA私钥
      */
     public static PrivateKey loadPriKey(String path) throws Exception {
         return loadPriKey(Files.readAllBytes(Paths.get(path)));
     }
 
     /**
-     * 从文件加载RSA私钥 openssl pkcs8 -topk8 -nocrypt -inform PEM -outform DER -in ca.key -out
-     * ca_private.der
+     * 从文件加载RSA私钥
      */
     public static PrivateKey loadPriKey(URI uri) throws Exception {
         return loadPriKey(Paths.get(uri).toString());
     }
 
     /**
-     * 从文件加载RSA私钥 openssl pkcs8 -topk8 -nocrypt -inform PEM -outform DER -in ca.key -out
-     * ca_private.der
+     * 从文件加载RSA私钥
      */
     public static PrivateKey loadPriKey(InputStream inputStream)
             throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
@@ -111,7 +106,7 @@ public class CertUtil {
     }
 
     /**
-     * 从文件加载RSA公钥 openssl rsa -in ca.key -pubout -outform DER -out ca_pub.der
+     * 从文件加载RSA公钥
      */
     public static PublicKey loadPubKey(byte[] bts) throws Exception {
         EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(bts);
@@ -119,7 +114,7 @@ public class CertUtil {
     }
 
     /**
-     * 从文件加载RSA公钥 openssl rsa -in ca.key -pubout -outform DER -out ca_pub.der
+     * 从文件加载RSA公钥
      */
     public static PublicKey loadPubKey(String path) throws Exception {
         EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(Files.readAllBytes(Paths.get(path)));
@@ -127,14 +122,14 @@ public class CertUtil {
     }
 
     /**
-     * 从文件加载RSA公钥 openssl rsa -in ca.key -pubout -outform DER -out ca_pub.der
+     * 从文件加载RSA公钥
      */
     public static PublicKey loadPubKey(URI uri) throws Exception {
         return loadPubKey(Paths.get(uri).toString());
     }
 
     /**
-     * 从文件加载RSA公钥 openssl rsa -in ca.key -pubout -outform DER -out ca_pub.der
+     * 从文件加载RSA公钥
      */
     public static PublicKey loadPubKey(InputStream inputStream) throws Exception {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -199,13 +194,10 @@ public class CertUtil {
     public static X509Certificate genCert(String issuer, PrivateKey caPriKey, Date caNotBefore,
                                           Date caNotAfter, PublicKey serverPubKey,
                                           String... hosts) throws Exception {
-        /* String issuer = "C=CN, ST=GD, L=SZ, O=lee, OU=study, CN=ProxyeeRoot";
-        String subject = "C=CN, ST=GD, L=SZ, O=lee, OU=study, CN=" + host;*/
         //根据CA证书subject来动态生成目标服务器证书的issuer和subject
-        String subject = "C=CN, ST=GD, L=SZ, O=lee, OU=study, CN=" + hosts[0];
-        //doc from https://www.cryptoworkshop.com/guide/
+        String subject = "C=CN, ST=SC, L=CD, O=WWS, OU=XMLY, CN=" + hosts[0];
+
         JcaX509v3CertificateBuilder jv3Builder = new JcaX509v3CertificateBuilder(new X500Name(issuer),
-                //issue#3 修复ElementaryOS上证书不安全问题(serialNumber为1时证书会提示不安全)，避免serialNumber冲突，采用时间戳+4位随机数生成
                 BigInteger.valueOf(System.currentTimeMillis() + (long) (Math.random() * 10000) + 1000),
                 caNotBefore,
                 caNotAfter,
@@ -238,21 +230,5 @@ public class CertUtil {
         ContentSigner signer = new JcaContentSignerBuilder("SHA256WithRSAEncryption")
                 .build(keyPair.getPrivate());
         return new JcaX509CertificateConverter().getCertificate(jv3Builder.build(signer));
-    }
-
-    public static void main(String[] args) throws Exception {
-        //生成ca证书和私钥
-        KeyPair keyPair = CertUtil.genKeyPair();
-        File caCertFile = new File("e:/ssl/Proxyee.crt");
-        if (caCertFile.exists()) {
-            caCertFile.delete();
-        }
-        Files.write(Paths.get(caCertFile.toURI()),
-                CertUtil.genCACert(
-                        "C=CN, ST=GD, L=SZ, O=lee, OU=study, CN=Proxyee",
-                        new Date(),
-                        new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(3650)),
-                        keyPair)
-                        .getEncoded());
     }
 }

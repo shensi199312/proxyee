@@ -19,7 +19,6 @@ public class HttpProxyClientHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        //客户端channel已关闭则不转发了
         if (!clientChannel.isOpen()) {
             ReferenceCountUtil.release(msg);
             return;

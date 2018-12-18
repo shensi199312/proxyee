@@ -53,7 +53,7 @@ public class CertDownIntercept extends HttpProxyIntercept {
                 clientChannel.close();
             } else if (httpRequest.uri().matches("^.*/favicon.ico$")) {
                 clientChannel.close();
-            } else {  //跳转下载页面
+            } else {
                 HttpResponse httpResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1,
                         HttpResponseStatus.OK);
                 String html = "<html><body><div style=\"margin-top:100px;text-align:center;\"><a href=\"ca.crt\">ProxyeeRoot ca.crt</a></div></body></html>";

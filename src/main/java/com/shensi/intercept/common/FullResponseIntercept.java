@@ -12,7 +12,7 @@ import io.netty.handler.codec.http.HttpResponse;
 
 public abstract class FullResponseIntercept extends HttpProxyIntercept {
 
-    //default max content length size is 8MB
+
     private static final int defaultMaxContentLength = 1024 * 1024 * 8;
 
     private int maxContentLength;

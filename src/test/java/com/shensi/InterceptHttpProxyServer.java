@@ -17,7 +17,6 @@ public class InterceptHttpProxyServer {
         config.setHandleSsl(true);
         new HttpProxyServer()
                 .serverConfig(config)
-//        .proxyConfig(new ProxyConfig(ProxyType.SOCKS5, "127.0.0.1", 1085))  //使用socks5二级代理
                 .proxyInterceptInitializer(new HttpProxyInterceptInitializer() {
                     @Override
                     public void init(HttpProxyInterceptPipeline pipeline) {

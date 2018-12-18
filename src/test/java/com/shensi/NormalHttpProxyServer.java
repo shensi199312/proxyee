@@ -6,7 +6,6 @@ import com.shensi.server.HttpProxyServerConfig;
 public class NormalHttpProxyServer {
 
     public static void main(String[] args) throws Exception {
-        //new HttpProxyServer().start(9998);
 
         HttpProxyServerConfig config = new HttpProxyServerConfig();
         config.setBossGroupThreads(1);

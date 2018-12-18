@@ -6,11 +6,10 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class CertPool {
 
-    private static Map<Integer, Map<String, X509Certificate>> certCache = new ConcurrentHashMap<>();
+    private static Map<Integer, Map<String, X509Certificate>> certCache = new WeakHashMap<>();
 
     public static X509Certificate getCert(Integer port, String host, HttpProxyServerConfig serverConfig)
             throws Exception {
